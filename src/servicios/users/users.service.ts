@@ -8,7 +8,14 @@ export class UsersService {
     constructor(@Inject('USER_REPOSITORY')
     private userRepository: Repository<User>) {}
 
+    /**
+     * 
+     * @param usuario Usuario
+     * @returns 
+     */
     async crear(usuario:User): Promise<User> {
         return this.userRepository.save(usuario);
     }
+
+    
 }
