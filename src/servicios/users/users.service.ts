@@ -17,5 +17,8 @@ export class UsersService {
         return this.userRepository.save(usuario);
     }
 
+    async listar(){
+        return this.userRepository.find();
+    }
     
 }

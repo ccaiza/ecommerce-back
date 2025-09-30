@@ -54,7 +54,7 @@ export class AuthService {
         if (!iguales) {
             return new HttpException(`Clave incorrecta.`, HttpStatus.FORBIDDEN);
         }
-        const payload = { sub: usuario.id, correo: usuario.email };
+        const payload = { sub: usuario.id, correo: usuario.email,name:usuario.nombre };
         const token = this.jwtService.sign(payload);
 
         return { access_token: token };
