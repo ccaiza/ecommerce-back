@@ -16,6 +16,7 @@ export const databaseProviders = [
             __dirname + '/../entidad/*.entity{.ts,.js}',
         ],
         synchronize: false,
+        logging: ['query', 'error'], // Aquí activas los logs SQL
       });
 
       return dataSource.initialize();

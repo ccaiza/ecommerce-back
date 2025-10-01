@@ -1,11 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { jwtConstants } from './common/constantes/constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT ?? 3000);
-  console.log('JWT_SECRET:', process.env.JWT_SECRET);
+  await app.listen(jwtConstants.port ?? 3000, jwtConstants.ip || 'localhost');
+  // console.log('JWT_SECRET:', jwtConstants.secret);
 }
 bootstrap();

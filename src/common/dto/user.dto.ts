@@ -1,5 +1,8 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
 
+/**
+ * DTO para crear un usuario
+ */
 export class CreateUserDto {
 
   @IsNotEmpty()
@@ -20,12 +23,20 @@ export class CreateUserDto {
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(6,{message:'La clave no puede ser menor de 6 caracteres'})
+  @MinLength(6, { message: 'La clave no puede ser menor de 6 caracteres' })
   password: string;
 
 }
 
+/** 
+ * DTO para actualizar un usuario
+ */
 export class UpdateUserDto {
+
+  @IsNotEmpty()
+  @IsNumber()
+  id: number;
+
   @IsOptional()
   @IsString()
   imagen?: string;
@@ -45,10 +56,6 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   telefono?: string;
-
-  @IsOptional()
-  @IsString()
-  password?: string;
 
   @IsOptional()
   @IsString()

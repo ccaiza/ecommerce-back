@@ -1,5 +1,5 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import {hash} from 'bcrypt';
+import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
+import { hash } from 'bcrypt';
 
 /**
  * Etidad usuario
@@ -8,7 +8,7 @@ import {hash} from 'bcrypt';
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
-    
+
     @Column({ nullable: true })
     imagen: string;
 
@@ -26,15 +26,18 @@ export class User {
     password: string;
     @Column({ nullable: true })
     notificacionToken: string;
-    
+
     @Column({ type: 'datetime', nullable: false, default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
     @Column({ type: 'datetime', nullable: true, onUpdate: 'CURRENT_TIMESTAMP' })
     updatedAt: Date;
 
+    @VersionColumn()
+    version: number;
+
     @BeforeInsert()
-    private async initPassword(){
+    private async initPassword() {
         this.password = await hash(this.password, Number(process.env.HASH_SALT))
     }
 }
