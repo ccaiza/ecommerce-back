@@ -9,7 +9,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ nullable: true })
+    @Column("text",{ nullable: true })
     imagen: string;
 
     @Column({ nullable: false })
