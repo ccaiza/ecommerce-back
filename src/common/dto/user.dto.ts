@@ -28,9 +28,9 @@ export class CreateUserDto {
 
   @IsArray({ message: 'rolId debe ser un arreglo' })
   @ArrayNotEmpty({ message: 'rolId no puede estar vacío' })
-  @IsInt({ each: true, message: 'Cada rolId debe ser un número entero' })
-  @Min(1, { each: true, message: 'Cada rolId debe ser mayor a 0' })
-  rolId: number[];
+  @IsString({ each: true, message: 'Cada rolId debe ser un string' })
+  @MinLength(3, { each: true, message: 'Cada rolId debe tener minimo 3 letras' })
+  rolId: string[];
 
   @IsNotEmpty()
   @IsBoolean({ message: 'El campo estado debe ser verdadero o falso' })

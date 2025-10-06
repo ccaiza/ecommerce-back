@@ -25,15 +25,28 @@ export class AuthService {
      * @returns User
      */
     async login(login: LoginDto): Promise<{ access_token: string } | HttpException> {
-        const usuario = await this.userRepository.findOneBy({ email: login.correo });
+
+        // const usuario = await this.userRepository.findOne({
+        //     where: { email: login.correo },
+        //     relations: ['usuarioRoles'],
+        // });
+        const usuario = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.usuarioRoles', 'usuarioRol')
+            .leftJoinAndSelect('usuarioRol.rolId', 'rol')
+            .where('user.email = :correo', { correo: login.correo })
+            .andWhere('rol.estado = true') //solo roles activos
+            .getOne();
+
         if (!usuario) {
-            return new HttpException(`No existe el usuariocon correo ${login.correo}.`, HttpStatus.NOT_FOUND);
+            throw new HttpException(`No existe el usuariocon correo ${login.correo}.`, HttpStatus.NOT_FOUND);
         }
         const iguales = await compare(login.password, usuario.password);
         if (!iguales) {
-            return new HttpException(`Clave incorrecta.`, HttpStatus.FORBIDDEN);
+            throw new HttpException(`Clave incorrecta.`, HttpStatus.FORBIDDEN);
         }
-        const payload = { sub: usuario.id, correo: usuario.email, name: usuario.nombre };
+        const payload = { sub: usuario.id, correo: usuario.email, name: usuario.nombre, 
+            roles: usuario.usuarioRoles.map(ur => ur.rolId.id) };
         const token = this.jwtService.sign(payload);
 
         return { access_token: token };

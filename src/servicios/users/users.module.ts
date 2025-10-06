@@ -10,6 +10,7 @@ import { RolesService } from '../roles/roles.service';
   imports: [
     DatabaseModule,
   ],
+  exports: [UsersService],//necesario para auth.module
   providers: [ 
     ...userProviders,
     ...rolProviders,

@@ -29,16 +29,16 @@ export class UsersService {
         //es necesario el await sino no puedo tomar el valor
         const existe = await this.userRepository.existsBy({ email: usuario.email });
         if (existe) {
-            return new HttpException(`El correo ${usuario.email}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
+            throw new HttpException(`El correo ${usuario.email}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
         }
         const tel = await this.userRepository.existsBy({ telefono: usuario.telefono });
         if (tel) {
-            return new HttpException(`El Telefono ${usuario.telefono}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
+            throw new HttpException(`El Telefono ${usuario.telefono}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
         }
         //vamos a buscar los roles
         const roles: Rol[] = await this.rolRepository.findBy({ id: In(usuario.rolId) });
         if (roles.length === 0) {
-            return new HttpException(`No se encontraron roles válidos.`, HttpStatus.BAD_REQUEST);
+            throw new HttpException(`No se encontraron roles válidos.`, HttpStatus.BAD_REQUEST);
         }
         const user = this.userRepository.create(usuario);
         const nuevoUsuario = await this.userRepository.save(user);
@@ -76,5 +76,20 @@ export class UsersService {
 
         return usuario;
 
+    }
+
+    /**
+     * Obtiene un usuario con roles activos.
+     * @param correo Correo del usuario
+     * @returns User | null
+     */
+    async obtenerUsuarioConRolesActivos(correo: string): Promise<User | null> {
+        return await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.usuarioRoles', 'usuarioRol')
+            .leftJoinAndSelect('usuarioRol.rolId', 'rol')
+            .where('user.email = :correo', { correo })
+            .andWhere('rol.estado = true')
+            .getOne();
     }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
 
 /**
  * Entidad que representa a la tabla rol en la base de datos..
@@ -7,8 +7,8 @@ import { Column, Entity, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
 @Entity({ name: 'rol' })
 export class Rol {
 
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn({ type: 'varchar', length: 15 })
+    id: string;
 
     @Column({ nullable: false, unique: true })
     nombre: string;

@@ -1,9 +1,11 @@
 import { Body, Controller, FileTypeValidator, Get, HttpException, MaxFileSizeValidator, ParseFilePipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { User } from 'src/conexion/entidad/user.entity';
 import { UsersService } from './users.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreateUserDto, UpdateUserDto } from 'src/common/dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { Roles } from 'src/auth/roles.decorator';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 
 /**
  * Implementa los endpoint.
@@ -38,7 +40,8 @@ export class UsersController {
      * Lista todos los usuarios.
      * @returns User[]
      */
-    @UseGuards(JwtAuthGuard)
+    @UseGuards(JwtAuthGuard,RolesGuard)
+    @Roles('ROLE_ADMIN')
     @Get()
     public async listar() {
         return this.usuarioServicio.listar();
@@ -50,6 +53,7 @@ export class UsersController {
      * @param file Archivo de imagen
      * @returns Usuario
      */
+    @UseGuards(JwtAuthGuard)
     @Post('updateImagen')
     @UseInterceptors(
         FileInterceptor('file'))
@@ -73,12 +77,6 @@ export class UsersController {
         user.imagen = base64String;
 
         return this.usuarioServicio.actualizar(user);
-        // console.log(base64String); // listo para guardar en la base
-
-        // Aquí podrías guardar en la base como string
-        // await this.repo.save({ imagenBase64: base64String });
-
-        // return { message: 'Imagen convertida a base64', base64: base64String };
 
     }
 }
