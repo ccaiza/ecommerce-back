@@ -1,24 +1,26 @@
-import { Body, Controller, FileTypeValidator, Get, MaxFileSizeValidator, ParseFilePipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, FileTypeValidator, Get, HttpException, MaxFileSizeValidator, ParseFilePipe, Post, Put, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { User } from 'src/conexion/entidad/user.entity';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { UpdateUserDto } from 'src/common/dto/user.dto';
+import { CreateUserDto, UpdateUserDto } from 'src/common/dto/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 
-
+/**
+ * Implementa los endpoint.
+ */
 @Controller('users')
 export class UsersController {
 
     constructor(private readonly usuarioServicio: UsersService) { }
 
     /**
-     * Permite crear un usuario.
-     * @param user Usuario
-     * @returns 
-     */
-    @Post()
-    public crearUsuario(@Body() user: User) {
-        return this.usuarioServicio.crear(user);
+    * Permite registrar un usuario.
+    * @param user CreateUserDto
+    * @returns 
+    */
+    @Post('registro')
+    public async crearUsuario(@Body() user: CreateUserDto): Promise<User | HttpException> {
+        return await this.usuarioServicio.regitrar(user);
     }
 
     /**

@@ -1,5 +1,6 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn, VersionColumn } from "typeorm";
 import { hash } from 'bcrypt';
+import { UsuarioRol } from "./usuarioRol.entity";
 
 /**
  * Etidad usuario
@@ -9,7 +10,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column("text",{ nullable: true })
+    @Column("text", { nullable: true })
     imagen: string;
 
     @Column({ nullable: false })
@@ -35,6 +36,13 @@ export class User {
 
     @VersionColumn()
     version: number;
+
+    @Column({ type: 'boolean', nullable: false, default: () => false })
+    estado: boolean;
+
+    @OneToMany(() => UsuarioRol, usuarioRol => usuarioRol.usuarioId)
+    usuarioRoles: UsuarioRol[];
+
 
     @BeforeInsert()
     private async initPassword() {

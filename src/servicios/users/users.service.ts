@@ -1,23 +1,61 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { UpdateUserDto } from 'src/common/dto/user.dto';
+import { HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto } from 'src/common/dto/user.dto';
+import { Rol } from 'src/conexion/entidad/rol.entity';
 import { User } from 'src/conexion/entidad/user.entity';
-import { Repository } from 'typeorm';
+import { UsuarioRol } from 'src/conexion/entidad/usuarioRol.entity';
+import { In, Repository } from 'typeorm';
 import { UpdateResult } from 'typeorm/browser';
 
+/**
+ * Implementa la logica de negocio de usuarios.
+ */
 @Injectable()
 export class UsersService {
 
-    constructor(@Inject('USER_REPOSITORY')
-    private userRepository: Repository<User>) { }
+    constructor(
+        @Inject('USER_REPOSITORY') private readonly userRepository: Repository<User>,
+        @Inject('ROL_REPOSITORY') private readonly rolRepository: Repository<Rol>,
+        @Inject('USUARIO_ROL_REPOSITORY') private readonly usurioRolRepository: Repository<UsuarioRol>,
+    ) { }
 
     /**
-     * 
-     * @param usuario Usuario
-     * @returns 
+     * Guarda un usuario a partir del dto.
+     * Es obligatorio que el correo y telefono sean unicos y que el usuario tenga un rol.
+     * @param usuario CreateUserDto
+     * @returns User
      */
-    async crear(usuario: User): Promise<User> {
-        const user = this.userRepository.create(usuario); // instancia real de User
-        return await this.userRepository.save(user);
+    async regitrar(usuario: CreateUserDto): Promise<User | HttpException> {
+        // Verificar si existe un usuario con ese correo
+        //es necesario el await sino no puedo tomar el valor
+        const existe = await this.userRepository.existsBy({ email: usuario.email });
+        if (existe) {
+            return new HttpException(`El correo ${usuario.email}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
+        }
+        const tel = await this.userRepository.existsBy({ telefono: usuario.telefono });
+        if (tel) {
+            return new HttpException(`El Telefono ${usuario.telefono}, ya se encuentra registrado.`, HttpStatus.CONFLICT);
+        }
+        //vamos a buscar los roles
+        const roles: Rol[] = await this.rolRepository.findBy({ id: In(usuario.rolId) });
+        if (roles.length === 0) {
+            return new HttpException(`No se encontraron roles válidos.`, HttpStatus.BAD_REQUEST);
+        }
+        const user = this.userRepository.create(usuario);
+        const nuevoUsuario = await this.userRepository.save(user);
+
+        // Asociar roles
+        const relaciones: UsuarioRol[] = roles.map(rol => {
+            const ur = new UsuarioRol();
+            ur.usuarioId = nuevoUsuario;
+            ur.rolId = rol;
+            ur.estado = true;
+            return ur;
+        });
+
+        await this.usurioRolRepository.save(relaciones);
+
+        return nuevoUsuario;
+
     }
 
     async listar() {

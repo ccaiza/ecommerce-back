@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, MinLength } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEmail, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min, MinLength } from 'class-validator';
 
 /**
  * DTO para crear un usuario
@@ -25,6 +25,16 @@ export class CreateUserDto {
   @IsString()
   @MinLength(6, { message: 'La clave no puede ser menor de 6 caracteres' })
   password: string;
+
+  @IsArray({ message: 'rolId debe ser un arreglo' })
+  @ArrayNotEmpty({ message: 'rolId no puede estar vacío' })
+  @IsInt({ each: true, message: 'Cada rolId debe ser un número entero' })
+  @Min(1, { each: true, message: 'Cada rolId debe ser mayor a 0' })
+  rolId: number[];
+
+  @IsNotEmpty()
+  @IsBoolean({ message: 'El campo estado debe ser verdadero o falso' })
+  estado: boolean;
 
 }
 
